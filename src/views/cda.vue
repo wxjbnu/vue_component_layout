@@ -1,33 +1,57 @@
 <template>
   <div class="cda">
     <!-- :options="{group:'people'}" -->
-    <div style="margin-right: 410px;border-right:1px solid #222;box-sizing: border-box;">
-      <draggable v-model="layCompList"
+    <div class="container"
+      style="">
+      <p>
+        <a href="javascript:void(0);" @click="clearLayout">清除</a>
+      </p>
+      <draggable v-model="layList"
         @start="drag=true"
         @end="drag=false">
-        <div style="border: 1px solid #111;"
-          v-for="(e, i) in layCompList"
-          :key="i">
+        <div class="div-box" style=""
+          v-for="(l, index) in layList"
+          :key="index"
+          :class="`${divClass[l.div]} ${layIndex == index ? 'hover' : ''}`"
+          @click="layIndex = index">
           <component
+             v-for="(e, i) in l.com"
+            :key="i"
             :is="e"></component>
         </div>
       </draggable>
     </div>
 
-    <div style="position: fixed;right:0;width: 200px;top:0;right: 200px;bottom:0;background: #eee;">
+    <div class="tool-wrap layout-tool"
+      style="">
+      <h3>布局组件</h3>
+      <ul>
+        <li v-for="(e, i) in layoutList"
+          :key="i"
+          @click="setLayout(e)">{{e}}</li>
+      </ul>
+      <!-- <div>
+        <button @click="goLayout(1)">去布局1</button>
+      </div> -->
+      {{layCompList}}
+    </div>
+
+    <div class="tool-wrap component-tool"
+      style="">
       <h3>组件列表</h3>
       <ul>
         <li v-for="(e, i) in componentsList"
           :key="i"
-          @click="setLayout(e)">{{e}}</li>
+          @click="setCom(e)">{{e}}</li>
       </ul>
-      <div>
+      <!-- <div>
         <button @click="goLayout(1)">去布局1</button>
-      </div>
+      </div> -->
       {{layCompList}}
     </div>
 
-    <div style="position: fixed;right:0;width: 200px;top:0;bottom:0;background: #eee;">
+    <div class="tool-wrap detail-tool"
+      style="">
       <h3>详细设置</h3>
       <p>组件名称{{comName}}</p>
       
@@ -62,6 +86,22 @@ export default {
       showAsyncCom: false, // 异步组件
       layout: ``,
       drag: true,
+      layIndex: 0, // 组件添加到哪个布局上
+      divClass: {
+        defualt: 'div-defualt',
+        flex: 'div-flex',
+        abs: 'div-abs',
+      },
+      layList: [
+        {div: 'defualt', com: [
+
+        ]}
+      ],
+      layoutList: [
+        'defualt',
+        'flex',
+        'abs'
+      ],
       componentsList: [
         'Photohandle',
         'Topmenu',
@@ -85,9 +125,26 @@ export default {
     // fetchPostList() {
     //   console.log(111)
     // },
+    // ===============清除当前布局===============
+    clearLayout() {
+      this.layList = []
+    },
+    setCom(e) {
+      if (this.layList.length > 0) {
+        this.comName = e
+        this.layList[this.layIndex].com.push(e)
+      } else {
+        alert('先新建盒子')
+      }
+      
+    },
     setLayout(e) {
-      this.comName = e
-      this.layCompList.push(e)
+      // this.comName = e
+      // this.layCompList.push(e)
+      this.layList.push({
+        div: e,
+        com: []
+      })
     },
     goLayout(i) {
       this.$router.push({
@@ -185,17 +242,49 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="less">
-h1, h2 {
-  font-weight: normal;
+li{
+  list-style: none;
+  text-align: left;
 }
-ul {
-  list-style-type: none;
-  padding: 0;
+div.hover {
+  border: 2px solid salmon;
 }
-li {
-  border-bottom: 1px solid darkblue;
+.div-box{
+  min-height: 120px;
+  border: 1px solid #111;
 }
-a {
-  color: #42b983;
+.div-defualt{
+  display: block;
+}
+.div-flex{
+  display: flex;
+  flex-direction: row;
+}
+.div-abs{
+  display: block;
+  position: relative;
+}
+.container{
+  margin-right: 600px;
+  box-sizing: border-box;
+}
+.tool-wrap{
+  position: fixed;
+  right: 0;
+  width: 200px;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background: #eee;
+  border-left: 1px solid rgb(3, 21, 77);
+  box-sizing: border-box;
+  &.layout-tool{
+    right: 400px;
+  }
+  &.component-tool{
+    right: 200px;
+  }
+  &.detail-tool{
+  }
 }
 </style>
